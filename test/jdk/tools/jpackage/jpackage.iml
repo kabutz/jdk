@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/helpers" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/linux" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macosx" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/share" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/windows" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="windows7" />
+    <orderEntry type="module" module-name="unix6" />
+    <orderEntry type="module" module-name="macosx4" />
+    <orderEntry type="module" module-name="windows" />
+    <orderEntry type="module" module-name="linux1" />
+  </component>
+</module>
