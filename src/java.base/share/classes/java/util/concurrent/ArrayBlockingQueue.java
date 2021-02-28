@@ -854,37 +854,37 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             // assert lock.isHeldByCurrentThread();
             // assert head != null;
             int probes = tryHarder ? LONG_SWEEP_PROBES : SHORT_SWEEP_PROBES;
-            Node o, p;
+            Node previousNode, currentNode;
             final Node sweeper = this.sweeper;
             boolean passedGo;   // to limit search to one full sweep
 
             if (sweeper == null) {
-                o = null;
-                p = head;
+                previousNode = null;
+                currentNode = head;
                 passedGo = true;
             } else {
-                o = sweeper;
-                p = o.next;
+                previousNode = sweeper;
+                currentNode = previousNode.next;
                 passedGo = false;
             }
 
             for (; probes > 0; probes--) {
-                if (p == null) {
+                if (currentNode == null) {
                     if (passedGo)
                         break;
-                    o = null;
-                    p = head;
+                    previousNode = null;
+                    currentNode = head;
                     passedGo = true;
                 }
-                final Itr it = p.get();
-                final Node next = p.next;
+                final Itr it = currentNode.get();
+                final Node next = currentNode.next;
                 if (it == null || it.isDetached()) {
                     // found a discarded/exhausted iterator
                     probes = LONG_SWEEP_PROBES; // "try harder"
                     // unlink p
-                    p.clear();
-                    p.next = null;
-                    if (o == null) {
+                    currentNode.clear();
+                    currentNode.next = null;
+                    if (previousNode == null) {
                         head = next;
                         if (next == null) {
                             // We've run out of iterators to track; retire
@@ -893,14 +893,14 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                         }
                     }
                     else
-                        o.next = next;
+                        previousNode.next = next;
                 } else {
-                    o = p;
+                    previousNode = currentNode;
                 }
-                p = next;
+                currentNode = next;
             }
 
-            this.sweeper = (p == null) ? null : o;
+            this.sweeper = (currentNode == null) ? null : previousNode;
         }
 
         /**
@@ -919,22 +919,22 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         void takeIndexWrapped() {
             // assert lock.isHeldByCurrentThread();
             cycles++;
-            for (Node o = null, p = head; p != null;) {
-                final Itr it = p.get();
-                final Node next = p.next;
+            for (Node previous = null, current = head; current != null;) {
+                final Itr it = current.get();
+                final Node next = current.next;
                 if (it == null || it.takeIndexWrapped()) {
                     // unlink p
                     // assert it == null || it.isDetached();
-                    p.clear();
-                    p.next = null;
-                    if (o == null)
+                    current.clear();
+                    current.next = null;
+                    if (previous == null)
                         head = next;
                     else
-                        o.next = next;
+                        previous.next = next;
                 } else {
-                    o = p;
+                    previous = current;
                 }
-                p = next;
+                current = next;
             }
             if (head == null)   // no more iterators to track
                 itrs = null;
