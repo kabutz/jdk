@@ -63,6 +63,14 @@ vframe::vframe(const frame* fr, JavaThread* thread)
   _fr = *fr;
 }
 
+vframe* vframe::new_vframe(StackFrameStream& fst, JavaThread* thread) {
+  if (fst.current()->is_runtime_frame()) {
+    fst.next();
+  }
+  guarantee(!fst.is_done(), "missing caller");
+  return new_vframe(fst.current(), fst.register_map(), thread);
+}
+
 vframe* vframe::new_vframe(const frame* f, const RegisterMap* reg_map, JavaThread* thread) {
   // Interpreter frame
   if (f->is_interpreted_frame()) {
@@ -138,8 +146,8 @@ GrowableArray<MonitorInfo*>* javaVFrame::locked_monitors() {
   if (waiting_monitor == NULL) {
     pending_monitor = thread()->current_pending_monitor();
   }
-  oop pending_obj = (pending_monitor != NULL ? (oop) pending_monitor->object() : (oop) NULL);
-  oop waiting_obj = (waiting_monitor != NULL ? (oop) waiting_monitor->object() : (oop) NULL);
+  oop pending_obj = (pending_monitor != NULL ? pending_monitor->object() : (oop) NULL);
+  oop waiting_obj = (waiting_monitor != NULL ? waiting_monitor->object() : (oop) NULL);
 
   for (int index = (mons->length()-1); index >= 0; index--) {
     MonitorInfo* monitor = mons->at(index);
