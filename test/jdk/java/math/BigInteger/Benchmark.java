@@ -52,8 +52,8 @@ public class Benchmark {
   }
 
   public String toString() {
-    return "cpu=" + cpuTime + ",user=" + userTime + ",elapsed=" +
-               elapsedTime + ",memory=" + formatMemory();
+    return "cpu=%d,user=%d,elapsed=%d,memory=%s,bytes=%d".formatted(
+            cpuTime, userTime, elapsedTime, formatMemory(), bytes);
   }
 
   private String formatMemory() {
