@@ -1923,15 +1923,6 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
             }
         }
 
-        private static int getParallelForkDepthThreshold() {
-            if (Thread.currentThread() instanceof ForkJoinWorkerThread fjwt) {
-                return calculateMaximumDepth(fjwt.getPool().getParallelism());
-            }
-            else {
-                return PARALLEL_FORK_DEPTH_THRESHOLD;
-            }
-        }
-
         protected RecursiveTask<BigInteger> forkOrInvoke() {
             if (parallel && depth <= getParallelForkDepthThreshold()) {
                 fork();
