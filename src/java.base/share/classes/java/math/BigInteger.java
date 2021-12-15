@@ -29,6 +29,12 @@
 
 package java.math;
 
+import jdk.internal.math.DoubleConsts;
+import jdk.internal.math.FloatConsts;
+import jdk.internal.vm.annotation.ForceInline;
+import jdk.internal.vm.annotation.IntrinsicCandidate;
+import jdk.internal.vm.annotation.Stable;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -40,12 +46,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.ThreadLocalRandom;
-
-import jdk.internal.math.DoubleConsts;
-import jdk.internal.math.FloatConsts;
-import jdk.internal.vm.annotation.ForceInline;
-import jdk.internal.vm.annotation.IntrinsicCandidate;
-import jdk.internal.vm.annotation.Stable;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * Immutable arbitrary-precision integers.  All operations behave as if
@@ -1863,6 +1864,33 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
         }
     }
 
+    private static final LongAdder numberOfForks = new LongAdder();
+    private static final LongAdder numberOfRecursiveOpTasks = new LongAdder();
+
+    /**
+     * Return number of forks.
+     * @return number of forks.
+     */
+    public static long getNumberOfForks() {
+        return numberOfForks.longValue();
+    }
+
+    /**
+     * Return number of RecursiveOp tasks.
+     * @return number of RecursiveOp tasks.
+     */
+    public static long getNumberOfRecursiveOpTasks() {
+        return numberOfRecursiveOpTasks.longValue();
+    }
+
+    /**
+     * Reset counters.
+     */
+    public static void resetCounters() {
+        numberOfForks.reset();
+        numberOfRecursiveOpTasks.reset();
+    }
+
     @SuppressWarnings("serial")
     private abstract static sealed class RecursiveOp extends RecursiveTask<BigInteger> {
         /**
@@ -1871,7 +1899,11 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
          * multiply and square.
          */
         private static final int PARALLEL_FORK_DEPTH_THRESHOLD =
-                (32 - Integer.numberOfLeadingZeros(ForkJoinPool.getCommonPoolParallelism()));
+                calculateMaximumDepth(ForkJoinPool.getCommonPoolParallelism());
+
+        private static final int calculateMaximumDepth(int parallelism) {
+            return 32 - Integer.numberOfLeadingZeros(parallelism);
+        }
 
         private final boolean parallel;
         private final int depth;
@@ -1879,12 +1911,12 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
         private RecursiveOp(boolean parallel, int depth) {
             this.parallel = parallel;
             this.depth = depth;
+            numberOfRecursiveOpTasks.increment();
         }
 
         private static int getParallelForkDepthThreshold() {
-            Thread t = Thread.currentThread();
-            if (t instanceof ForkJoinWorkerThread) {
-                return ((ForkJoinWorkerThread) t).getPool().getParallelism() << 2;
+            if (Thread.currentThread() instanceof ForkJoinWorkerThread fjwt) {
+                return calculateMaximumDepth(fjwt.getPool().getParallelism());
             }
             else {
                 return PARALLEL_FORK_DEPTH_THRESHOLD;
@@ -1892,7 +1924,10 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
         }
 
         protected RecursiveTask<BigInteger> forkOrInvoke() {
-            if (parallel && depth <= getParallelForkDepthThreshold()) fork();
+            if (parallel && depth <= getParallelForkDepthThreshold()) {
+                fork();
+                numberOfForks.increment();
+            }
             else invoke();
             return this;
         }
