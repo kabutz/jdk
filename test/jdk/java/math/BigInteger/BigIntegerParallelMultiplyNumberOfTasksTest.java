@@ -12,21 +12,26 @@ public class BigIntegerParallelMultiplyNumberOfTasksTest {
     public static void main(String... args) {
         for (int n = 1000; n <= 1_000_000_000; n *= 10) {
             System.out.printf(Locale.US, "n=%,d", n);
-            int bitLength;
-            long time = System.nanoTime();
-            try {
-                BigInteger fb = fibonacci(n, BigInteger::parallelMultiply);
-                bitLength = fb.bitLength();
-            } finally {
-                time = System.nanoTime() - time;
-            }
-            System.out.printf(Locale.US, "\tbits=%,d\ttasks=%,d\tforks=%,d\ttime=%,dms%n%n",
-                    bitLength, maximumNumberOfRecursiveTasks.longValue(),
-                    maximumNumberOfForkedTasks.longValue(),
-                    time / 1_000_000);
-            maximumNumberOfRecursiveTasks.reset();
-            maximumNumberOfForkedTasks.reset();
+            runExperiment(n, BigInteger::parallelMultiply);
+            runExperiment(n, BigInteger::multiply);
         }
+    }
+
+    private static void runExperiment(int n, BinaryOperator<BigInteger> multiplyOperator) {
+        int bitLength;
+        long time = System.nanoTime();
+        try {
+            BigInteger fb = fibonacci(n, multiplyOperator);
+            bitLength = fb.bitLength();
+        } finally {
+            time = System.nanoTime() - time;
+        }
+        System.out.printf(Locale.US, "\tbits=%,d\ttasks=%,d\tforks=%,d\ttime=%,dms%n%n",
+                bitLength, maximumNumberOfRecursiveTasks.longValue(),
+                maximumNumberOfForkedTasks.longValue(),
+                time / 1_000_000);
+        maximumNumberOfRecursiveTasks.reset();
+        maximumNumberOfForkedTasks.reset();
     }
 
     public static BigInteger fibonacci(int n, BinaryOperator<BigInteger> multiplyOperator) {

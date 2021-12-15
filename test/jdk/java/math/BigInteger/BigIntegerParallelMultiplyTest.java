@@ -67,16 +67,29 @@ public class BigIntegerParallelMultiplyTest {
         compare(10_000, 3473);
         compare(100_000, 34883);
         compare(1_000_000, 347084);
-        for (int n = 1_000; n <= 10_000_000; n *= 10) {
+        for (int n = 1_000; n <= 100_000_000; n *= 10) {
             System.out.println();
+            BigInteger parallelResult;
             long time = System.nanoTime();
             try {
-                var fib = fibonacci(n, BigInteger::parallelMultiply);
-                System.out.print("fibonacci(" + n + ") " + fib.bitLength());
+                parallelResult = fibonacci(n, BigInteger::parallelMultiply);
+                System.out.printf("parallel fibonacci(%,d) %d", n, parallelResult.bitLength());
             } finally {
                 time = System.nanoTime() - time;
                 System.out.printf(" took %dms%n", (time / 1_000_000));
             }
+
+            BigInteger sequentialResult;
+            time = System.nanoTime();
+            try {
+                sequentialResult = fibonacci(n, BigInteger::parallelMultiply);
+                System.out.printf("sequential fibonacci(%,d) %d", n, parallelResult.bitLength());
+            } finally {
+                time = System.nanoTime() - time;
+                System.out.printf(" took %dms%n", (time / 1_000_000));
+            }
+            if (!parallelResult.equals(sequentialResult))
+                throw new AssertionError("Mismatch of results");
         }
     }
 
