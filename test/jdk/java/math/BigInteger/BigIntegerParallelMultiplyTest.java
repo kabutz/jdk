@@ -82,8 +82,8 @@ public class BigIntegerParallelMultiplyTest {
             BigInteger sequentialResult;
             time = System.nanoTime();
             try {
-                sequentialResult = fibonacci(n, BigInteger::parallelMultiply);
-                System.out.printf("sequential fibonacci(%,d) %d", n, parallelResult.bitLength());
+                sequentialResult = fibonacci(n, BigInteger::multiply);
+                System.out.printf("sequential fibonacci(%,d) %d", n, sequentialResult.bitLength());
             } finally {
                 time = System.nanoTime() - time;
                 System.out.printf(" took %dms%n", (time / 1_000_000));
