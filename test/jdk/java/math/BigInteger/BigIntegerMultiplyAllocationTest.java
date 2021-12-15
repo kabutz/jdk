@@ -8,8 +8,8 @@ public class BigIntegerMultiplyAllocationTest {
         fibonacci(1000, MULTIPLY);
         fibonacci(1000, MULTIPLY);
         Benchmark bm = new Benchmark();
-        for (int n = 1_000_000; n <= 1_000_000_000 ; n *= 10) {
-            System.out.printf("fibonacci(%dm)%n", n / 1_000_000);
+        for (int n = 100; n <= 10_000_000 ; n *= 10) {
+            System.out.printf("fibonacci(%d)%n", n);
             bm.start();
             bm.stop();
             bm.start();

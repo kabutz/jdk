@@ -1928,7 +1928,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
                 fork();
                 numberOfForks.increment();
             }
-            else complete(compute());
+            else invoke();//complete(compute());
             return this;
         }
 

@@ -12,7 +12,7 @@ public class BigIntegerParallelMultiplyNumberOfTasksTest {
     public static void main(String... args) {
         for (int n = 1000; n <= 1_000_000_000; n *= 10) {
             System.out.printf(Locale.US, "n=%,d", n);
-            runExperiment(n, BigInteger::parallelMultiply);
+            // runExperiment(n, BigInteger::parallelMultiply);
             runExperiment(n, BigInteger::multiply);
         }
     }
