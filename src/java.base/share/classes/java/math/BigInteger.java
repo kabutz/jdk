@@ -29,12 +29,6 @@
 
 package java.math;
 
-import jdk.internal.math.DoubleConsts;
-import jdk.internal.math.FloatConsts;
-import jdk.internal.vm.annotation.ForceInline;
-import jdk.internal.vm.annotation.IntrinsicCandidate;
-import jdk.internal.vm.annotation.Stable;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
