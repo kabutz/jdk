@@ -990,6 +990,26 @@ public class Arrays {
             java.security.AccessController.doPrivileged(
                 new sun.security.action.GetBooleanAction(
                     "java.util.Arrays.useLegacyMergeSort")).booleanValue();
+        private static final SortAlgorithm sortAlgorithm =
+                userRequested ? new LegacyMergeSortAlgorithm()
+                        : new TimSortAlgorithm();
+    }
+
+    private interface SortAlgorithm {
+        void sort(Object[] a);
+    }
+
+    private static class LegacyMergeSortAlgorithm implements SortAlgorithm {
+        @Override
+        public void sort(Object[] a) {
+            legacyMergeSort(a);
+        }
+    }
+    private static class TimSortAlgorithm implements SortAlgorithm {
+        @Override
+        public void sort(Object[] a) {
+            ComparableTimSort.sort(a, 0, a.length, null, 0, 0);
+        }
     }
 
     /**
@@ -1035,10 +1055,7 @@ public class Arrays {
      *         {@link Comparable} contract
      */
     public static void sort(Object[] a) {
-        if (LegacyMergeSort.userRequested)
-            legacyMergeSort(a);
-        else
-            ComparableTimSort.sort(a, 0, a.length, null, 0, 0);
+        LegacyMergeSort.sortAlgorithm.sort(a);
     }
 
     /** To be removed in a future release. */
