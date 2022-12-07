@@ -86,6 +86,9 @@ class ImmutableCollections {
         REVERSE = (SALT32L & 1) == 0;
     }
 
+    // Golden ratio * 2^31, used for SetN and MapN hash chains
+    private static final int HASH_INCREMENT = 0x61c88647;
+
     /**
      * Constants following this might be initialized from the CDS archive via
      * this array.
@@ -1004,15 +1007,16 @@ class ImmutableCollections {
         // Callers are relying on this method to perform an implicit nullcheck
         // of pe
         private int probe(Object pe) {
-            int idx = Math.floorMod(pe.hashCode(), elements.length);
+            int hash = pe.hashCode();
             while (true) {
+                int idx = Math.floorMod(hash, elements.length);
                 E ee = elements[idx];
                 if (ee == null) {
                     return -idx - 1;
                 } else if (pe.equals(ee)) {
                     return idx;
-                } else if (++idx == elements.length) {
-                    idx = 0;
+                } else {
+                    hash += HASH_INCREMENT;
                 }
             }
         }
@@ -1318,16 +1322,17 @@ class ImmutableCollections {
         // Callers are relying on this method to perform an implicit nullcheck
         // of pk.
         private int probe(Object pk) {
-            int idx = Math.floorMod(pk.hashCode(), table.length >> 1) << 1;
+            int hash = pk.hashCode();
             while (true) {
+                int idx = Math.floorMod(hash, table.length >> 1) << 1;
                 @SuppressWarnings("unchecked")
                 K ek = (K)table[idx];
                 if (ek == null) {
                     return -idx - 1;
                 } else if (pk.equals(ek)) {
                     return idx;
-                } else if ((idx += 2) == table.length) {
-                    idx = 0;
+                } else {
+                    hash += HASH_INCREMENT;
                 }
             }
         }
