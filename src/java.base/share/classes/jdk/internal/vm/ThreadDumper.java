@@ -267,7 +267,8 @@ public class ThreadDumper {
         int i = 0;
         StackTraceElement[] stackTrace = thread.getStackTrace();
         while (i < stackTrace.length) {
-            out.format("              \"%s\"", escape(stackTrace[i].toString()));
+            out.print("              \"" + escape(stackTrace[i].toString()) + "\"");
+            // out.format("              \"%s\"", escape(stackTrace[i].toString()));
             i++;
             if (i < stackTrace.length) {
                 out.println(",");
