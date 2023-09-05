@@ -89,12 +89,13 @@ public class ThreadDumper {
      * Generate a thread dump in plain text or JSON format to a byte array, UTF-8 encoded.
      */
     private static byte[] dumpThreadsToByteArray(boolean json, int maxSize) {
-        try (var out = new BoundedByteArrayOutputStream(maxSize);
-             PrintStream ps = new PrintStream(out, true, StandardCharsets.UTF_8)) {
-            if (json) {
-                dumpThreadsToJson(ps);
-            } else {
-                dumpThreads(ps);
+        try (var out = new BoundedByteArrayOutputStream(maxSize)) {
+            try (var ps = new PrintStream(out, false, StandardCharsets.UTF_8)) {
+                if (json) {
+                    dumpThreadsToJson(ps);
+                } else {
+                    dumpThreads(ps);
+                }
             }
             return out.toByteArray();
         }
@@ -110,7 +111,7 @@ public class ThreadDumper {
                 : new OpenOption[] { StandardOpenOption.CREATE_NEW };
         String reply;
         try (OutputStream out = Files.newOutputStream(path, options);
-             PrintStream ps = new PrintStream(out, true, StandardCharsets.UTF_8)) {
+             PrintStream ps = new PrintStream(out, false, StandardCharsets.UTF_8)) {
             if (json) {
                 dumpThreadsToJson(ps);
             } else {
@@ -132,7 +133,7 @@ public class ThreadDumper {
      * This method is invoked by HotSpotDiagnosticMXBean.dumpThreads.
      */
     public static void dumpThreads(OutputStream out) {
-        PrintStream ps = new PrintStream(out, true, StandardCharsets.UTF_8);
+        PrintStream ps = new PrintStream(out, false, StandardCharsets.UTF_8);
         try {
             dumpThreads(ps);
         } finally {
@@ -158,7 +159,8 @@ public class ThreadDumper {
 
     private static void dumpThread(Thread thread, PrintStream ps) {
         String suffix = thread.isVirtual() ? " virtual" : "";
-        ps.format("#%d \"%s\"%s%n", thread.threadId(), thread.getName(), suffix);
+        ps.println("#" + thread.threadId() + " \"" + thread.getName() + "\"" + suffix);
+        // ps.format("#%d \"%s\"%s%n", thread.threadId(), thread.getName(), suffix);
         for (StackTraceElement ste : thread.getStackTrace()) {
             ps.println("      " + ste);
             // ps.format("      %s%n", ste);
@@ -172,7 +174,7 @@ public class ThreadDumper {
      * This method is invoked by HotSpotDiagnosticMXBean.dumpThreads.
      */
     public static void dumpThreadsToJson(OutputStream out) {
-        PrintStream ps = new PrintStream(out, true, StandardCharsets.UTF_8);
+        PrintStream ps = new PrintStream(out, false, StandardCharsets.UTF_8);
         try {
             dumpThreadsToJson(ps);
         } finally {
@@ -214,7 +216,8 @@ public class ThreadDumper {
                                           PrintStream out,
                                           boolean more) {
         out.println("      {");
-        out.format("        \"container\": \"%s\",%n", escape(container.toString()));
+        out.println("        \"container\": \"" + escape(container.toString()) + "\",");
+        // out.format("        \"container\": \"%s\",%n", escape(container.toString()));
 
         ThreadContainer parent = container.parent();
         if (parent == null) {
