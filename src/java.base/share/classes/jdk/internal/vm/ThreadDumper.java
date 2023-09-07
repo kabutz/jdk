@@ -160,7 +160,7 @@ public class ThreadDumper {
         String suffix = thread.isVirtual() ? " virtual" : "";
         ps.format("#%d \"%s\"%s%n", thread.threadId(), thread.getName(), suffix);
         for (StackTraceElement ste : thread.getStackTrace()) {
-            ps.format("      %s%n", ste);
+            ps.println("      " + ste);
         }
         ps.println();
     }
@@ -263,7 +263,7 @@ public class ThreadDumper {
         int i = 0;
         StackTraceElement[] stackTrace = thread.getStackTrace();
         while (i < stackTrace.length) {
-            out.format("              \"%s\"", escape(stackTrace[i].toString()));
+            out.print("              \"" + escape(stackTrace[i].toString()) + "\"");
             i++;
             if (i < stackTrace.length) {
                 out.println(",");
