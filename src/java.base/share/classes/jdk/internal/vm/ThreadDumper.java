@@ -90,7 +90,7 @@ public class ThreadDumper {
      */
     private static byte[] dumpThreadsToByteArray(boolean json, int maxSize) {
         try (var out = new BoundedByteArrayOutputStream(maxSize);
-             PrintStream ps = new PrintStream(out, true, StandardCharsets.UTF_8)) {
+             PrintStream ps = new PrintStream(out, false, StandardCharsets.UTF_8)) {
             if (json) {
                 dumpThreadsToJson(ps);
             } else {
@@ -110,7 +110,7 @@ public class ThreadDumper {
                 : new OpenOption[] { StandardOpenOption.CREATE_NEW };
         String reply;
         try (OutputStream out = Files.newOutputStream(path, options);
-             PrintStream ps = new PrintStream(out, true, StandardCharsets.UTF_8)) {
+             PrintStream ps = new PrintStream(out, false, StandardCharsets.UTF_8)) {
             if (json) {
                 dumpThreadsToJson(ps);
             } else {
@@ -132,7 +132,7 @@ public class ThreadDumper {
      * This method is invoked by HotSpotDiagnosticMXBean.dumpThreads.
      */
     public static void dumpThreads(OutputStream out) {
-        PrintStream ps = new PrintStream(out, true, StandardCharsets.UTF_8);
+        PrintStream ps = new PrintStream(out, false, StandardCharsets.UTF_8);
         try {
             dumpThreads(ps);
         } finally {
@@ -171,7 +171,7 @@ public class ThreadDumper {
      * This method is invoked by HotSpotDiagnosticMXBean.dumpThreads.
      */
     public static void dumpThreadsToJson(OutputStream out) {
-        PrintStream ps = new PrintStream(out, true, StandardCharsets.UTF_8);
+        PrintStream ps = new PrintStream(out, false, StandardCharsets.UTF_8);
         try {
             dumpThreadsToJson(ps);
         } finally {
