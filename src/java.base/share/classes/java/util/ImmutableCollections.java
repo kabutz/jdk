@@ -906,6 +906,7 @@ class ImmutableCollections {
     static final class SetN<E> extends AbstractImmutableSet<E>
             implements Serializable {
 
+        protected static final int GOLDEN_RATIO = 0x61c88647;
         @Stable
         final E[] elements;
 
@@ -1011,15 +1012,15 @@ class ImmutableCollections {
         // Callers are relying on this method to perform an implicit nullcheck
         // of pe
         private int probe(Object pe) {
-            int idx = Math.floorMod(pe.hashCode(), elements.length);
             while (true) {
+                int idx = Math.floorMod(pe.hashCode(), elements.length);
                 E ee = elements[idx];
                 if (ee == null) {
                     return -idx - 1;
                 } else if (pe.equals(ee)) {
                     return idx;
-                } else if (++idx == elements.length) {
-                    idx = 0;
+                } else {
+                    idx += GOLDEN_RATIO;
                 }
             }
         }
