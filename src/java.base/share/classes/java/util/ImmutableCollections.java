@@ -1012,15 +1012,16 @@ class ImmutableCollections {
         // Callers are relying on this method to perform an implicit nullcheck
         // of pe
         private int probe(Object pe) {
+            int hash = pe.hashCode();
             while (true) {
-                int idx = Math.floorMod(pe.hashCode(), elements.length);
+                int idx = Math.floorMod(hash, elements.length); // use mask here
                 E ee = elements[idx];
                 if (ee == null) {
                     return -idx - 1;
                 } else if (pe.equals(ee)) {
                     return idx;
                 } else {
-                    idx += GOLDEN_RATIO;
+                    hash += GOLDEN_RATIO; // and make array power of 2
                 }
             }
         }
