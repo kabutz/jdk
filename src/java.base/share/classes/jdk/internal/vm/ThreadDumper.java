@@ -161,7 +161,7 @@ public class ThreadDumper {
 
     private static void dumpThread(Thread thread, PrintStream ps) {
         String suffix = thread.isVirtual() ? " virtual" : "";
-        ps.println("#" + thread.threadId() + " \"" + thread.getName() + "\"" + suffix);
+        ps.println(STR."#\{thread.threadId()} \"\{thread.getName()} \"\{suffix}");
         for (StackTraceElement ste : thread.getStackTrace()) {
             ps.print("      ");
             ps.println(ste);
@@ -193,9 +193,9 @@ public class ThreadDumper {
 
         String now = Instant.now().toString();
         String runtimeVersion = Runtime.version().toString();
-        out.format("    \"processId\": \"%d\",%n", processId());
-        out.format("    \"time\": \"%s\",%n", escape(now));
-        out.format("    \"runtimeVersion\": \"%s\",%n", escape(runtimeVersion));
+        out.println(STR."    \"processId\": \"\{processId()}\",");
+        out.println(STR."    \"time\": \"\{escape(now)}\",");
+        out.println(STR."    \"runtimeVersion\": \"\{escape(runtimeVersion)}\",");
 
         out.println("    \"threadContainers\": [");
         List<ThreadContainer> containers = allContainers();
@@ -218,20 +218,20 @@ public class ThreadDumper {
                                           PrintStream out,
                                           boolean more) {
         out.println("      {");
-        out.format("        \"container\": \"%s\",%n", escape(container.toString()));
+        out.println(STR."        \"container\": \"\{escape(container.toString())}\",");
 
         ThreadContainer parent = container.parent();
         if (parent == null) {
-            out.format("        \"parent\": null,%n");
+            out.println("        \"parent\": null,");
         } else {
-            out.format("        \"parent\": \"%s\",%n", escape(parent.toString()));
+            out.println(STR."        \"parent\": \"\{escape(parent.toString())}\",");
         }
 
         Thread owner = container.owner();
         if (owner == null) {
-            out.format("        \"owner\": null,%n");
+            out.println("        \"owner\": null,");
         } else {
-            out.format("        \"owner\": \"%d\",%n", owner.threadId());
+            out.println(STR."        \"owner\": \"\{owner.threadId()}\",%n");
         }
 
         long threadCount = 0;
@@ -248,7 +248,7 @@ public class ThreadDumper {
         if (!ThreadContainers.trackAllThreads()) {
             threadCount = Long.max(threadCount, container.threadCount());
         }
-        out.format("        \"threadCount\": \"%d\"%n", threadCount);
+        out.println(STR."        \"threadCount\": \"\{threadCount}\"");
 
         if (more) {
             out.println("      },");
@@ -262,8 +262,8 @@ public class ThreadDumper {
      */
     private static void dumpThreadToJson(Thread thread, PrintStream out, boolean more) {
         out.println("         {");
-        out.println("           \"tid\": \"" + thread.threadId() + "\",");
-        out.println("           \"name\": \"" + escape(thread.getName()) + "\",");
+        out.println(STR."           \"tid\": \"\{thread.threadId()}\",");
+        out.println(STR."           \"name\": \"\{escape(thread.getName())}\",");
         out.println("           \"stack\": [");
 
         int i = 0;
