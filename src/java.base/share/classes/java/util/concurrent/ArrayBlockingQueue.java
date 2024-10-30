@@ -1619,7 +1619,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
     }
 
     /**
-     * Writes the queue to the stream whilst holding the locks to prevent
+     * Writes the queue to the stream whilst holding the lock to prevent
      * broken invariants.
      *
      * @param s the stream
