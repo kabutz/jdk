@@ -31,7 +31,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
+import java.util.concurrent.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -184,9 +188,22 @@ class ImmutableCollections {
             return (List<E>)coll;
         } else if (coll.isEmpty()) { // implicit nullcheck of coll
             return List.of();
+        } else if (coll instanceof CopyOnWriteArrayList<? extends E> cowal) {
+            return ImmutableCollections.listFromTrustedArrayNullsAllowed(
+                getCOWALArray(cowal)
+            );
         } else {
             return (List<E>)List.of(coll.toArray());
         }
+    }
+
+    private static long COWAL_ARRAY_OFFSET = -1;
+    private static Object[] getCOWALArray(CopyOnWriteArrayList<?> list) {
+        if (COWAL_ARRAY_OFFSET == -1)
+            COWAL_ARRAY_OFFSET = jdk.internal.misc.Unsafe.getUnsafe()
+                .objectFieldOffset(CopyOnWriteArrayList.class, "array");
+        return (Object[]) jdk.internal.misc.Unsafe.getUnsafe().getReference(
+                list, COWAL_ARRAY_OFFSET);
     }
 
     /**
