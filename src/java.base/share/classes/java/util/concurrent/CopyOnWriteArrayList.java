@@ -170,6 +170,16 @@ public class CopyOnWriteArrayList<E>
     }
 
     /**
+     * Returns an immutable snapshot of this list.
+     *
+     * @return an immutable snapshot of this list.
+     */
+    public List<E> snapshot() {
+        return SharedSecrets.getJavaUtilCollectionAccess()
+                .listFromTrustedArrayNullsAllowed(array);
+    }
+
+    /**
      * Returns the number of elements in this list.
      *
      * @return the number of elements in this list

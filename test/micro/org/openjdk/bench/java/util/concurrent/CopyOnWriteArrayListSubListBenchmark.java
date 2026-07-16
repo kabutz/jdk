@@ -138,11 +138,10 @@ public class CopyOnWriteArrayListSubListBenchmark {
      * volatile, access is potentially faster. O(1) cost to
      * the size of the original list.
      */
-    /*
-     * @Benchmark public int _5_snapshotThenSubList(Blackhole bh) {
-     * return process(bh, cow.snapshot().subList(0, 2));
-     * }
-     */
+    @Benchmark
+    public int _5_snapshotThenSubList(Blackhole bh) {
+        return process(bh, cow.snapshot().subList(0, 2));
+    }
 
     /**
      * Ensure that the list is not eliminated as dead code.
