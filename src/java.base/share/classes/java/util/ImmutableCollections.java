@@ -32,6 +32,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -184,6 +185,8 @@ class ImmutableCollections {
             return (List<E>)coll;
         } else if (coll.isEmpty()) { // implicit nullcheck of coll
             return List.of();
+        } else if (coll instanceof CopyOnWriteArrayList<? extends E> cowal) {
+            return SharedSecrets.getJavaUtilConcurrentCOWALAccess().immutableList(cowal);
         } else {
             return (List<E>)List.of(coll.toArray());
         }

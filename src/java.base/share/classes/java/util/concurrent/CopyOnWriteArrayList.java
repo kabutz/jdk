@@ -55,6 +55,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import jdk.internal.access.JavaUtilConcurrentCOWALAccess;
 import jdk.internal.access.SharedSecrets;
 import jdk.internal.misc.Unsafe;
 import jdk.internal.util.ArraysSupport;
@@ -124,6 +126,19 @@ public class CopyOnWriteArrayList<E>
      */
     final void setArray(Object[] a) {
         array = a;
+    }
+
+    static class Access {
+        static {
+            SharedSecrets.setJavaUtilConcurrentCOWALAccess(new JavaUtilConcurrentCOWALAccess() {
+                @Override
+                @SuppressWarnings("unchecked")
+                public <E> List<E> immutableList(CopyOnWriteArrayList<? extends E> cowal) {
+                    return (List<E>)SharedSecrets.getJavaUtilCollectionAccess()
+                            .listFromTrustedArrayNullsAllowed(cowal.array);
+                }
+            });
+        }
     }
 
     /**

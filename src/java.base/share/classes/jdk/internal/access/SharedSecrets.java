@@ -97,6 +97,7 @@ public class SharedSecrets {
     @Stable private static JavaUtilCollectionAccess javaUtilCollectionAccess;
     @Stable private static JavaUtilConcurrentTLRAccess javaUtilConcurrentTLRAccess;
     @Stable private static JavaUtilConcurrentFJPAccess javaUtilConcurrentFJPAccess;
+    @Stable private static JavaUtilConcurrentCOWALAccess javaUtilConcurrentCOWALAccess;
     @Stable private static JavaUtilJarAccess javaUtilJarAccess;
     @Stable private static JavaUtilZipFileAccess javaUtilZipFileAccess;
     @Stable private static JavaUtilResourceBundleAccess javaUtilResourceBundleAccess;
@@ -146,6 +147,21 @@ public class SharedSecrets {
         if (access == null) {
             ensureClassInitialized(ForkJoinPool.class);
             access = javaUtilConcurrentFJPAccess;
+        }
+        return access;
+    }
+
+    public static void setJavaUtilConcurrentCOWALAccess(JavaUtilConcurrentCOWALAccess access) {
+        javaUtilConcurrentCOWALAccess = access;
+    }
+
+    public static JavaUtilConcurrentCOWALAccess getJavaUtilConcurrentCOWALAccess() {
+        var access = javaUtilConcurrentCOWALAccess;
+        if (access == null) {
+            try {
+                Class.forName("java.util.concurrent.CopyOnWriteArrayList$Access", true, null);
+                access = javaUtilConcurrentCOWALAccess;
+            } catch (ClassNotFoundException e) {}
         }
         return access;
     }
